@@ -46,6 +46,7 @@ static AVCodecContext *decoder_ctx = NULL, *encoder_ctx = NULL;
 static int video_stream = -1;
 static AVStream *ost;
 static int initialized = 0;
+static int frame_count = 0;
 
 static enum AVPixelFormat get_nv_format(AVCodecContext *ctx,
                                         const enum AVPixelFormat *pix_fmts)
@@ -188,6 +189,9 @@ static int dec_enc(AVPacket *pkt, AVCodec *enc_codec)
             encoder_ctx->width     = decoder_ctx->width;
             encoder_ctx->height    = decoder_ctx->height;
 
+            AVDictionary *opts = NULL;
+            av_dict_set(&opts, "max_width", "1920", 0);
+            av_dict_set(&opts, "max_height", "1080", 0);
             if ((ret = avcodec_open2(encoder_ctx, enc_codec, NULL)) < 0) {
                 fprintf(stderr, "Failed to open encode codec. Error code: %s\n",
                         av_err2str(ret));
@@ -216,6 +220,12 @@ static int dec_enc(AVPacket *pkt, AVCodec *enc_codec)
             }
 
             initialized = 1;
+        }
+        frame_count++;
+        if (frame_count == 251) {
+            printf("Changing height to 360p\n");
+            encoder_ctx->width = 640;
+            encoder_ctx->height= 360;
         }
 
         if ((ret = encode_write(frame)) < 0)
