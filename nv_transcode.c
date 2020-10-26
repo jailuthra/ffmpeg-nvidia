@@ -192,7 +192,7 @@ static int dec_enc(AVPacket *pkt, AVCodec *enc_codec)
             AVDictionary *opts = NULL;
             av_dict_set(&opts, "max_width", "1920", 0);
             av_dict_set(&opts, "max_height", "1080", 0);
-            if ((ret = avcodec_open2(encoder_ctx, enc_codec, NULL)) < 0) {
+            if ((ret = avcodec_open2(encoder_ctx, enc_codec, &opts)) < 0) {
                 fprintf(stderr, "Failed to open encode codec. Error code: %s\n",
                         av_err2str(ret));
                 goto fail;
